@@ -1,0 +1,9 @@
+Package: keboola.redshift.r.client
+Type: Package
+Title: Amazon Redshift database driver
+Version: 1.0
+Date: 2015-04-28
+Author: Ondrej Popelka
+Maintainer: Ondrej Popelka <ondrej.popelka@keboola.com>
+Description: A set of methods for working with Amazon Redshift database.
+License: MIT
