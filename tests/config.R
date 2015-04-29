@@ -1,4 +1,4 @@
-hostname <- "sapi-06-default.cmizbsfmzc6w.us-east-1.redshift.amazonaws.com"
+host <- "sapi-06-default.cmizbsfmzc6w.us-east-1.redshift.amazonaws.com"
 db <- "sapi_578"
 schema <- "tapi_27978_tran"
 user <- "tapi_27978_tran"
