@@ -4,12 +4,10 @@
 \alias{redshift.connect}
 \title{Connect to Amazon Redshift database}
 \usage{
-redshift.connect(jdbcUrl, driver, username, password, schema)
+redshift.connect(jdbcUrl, username, password, schema)
 }
 \arguments{
 \item{jdbcUrl}{JDBC connection string}
-
-\item{driver}{Path to the JDBC driver}
 
 \item{username}{Database user name}
 
@@ -18,7 +16,7 @@ redshift.connect(jdbcUrl, driver, username, password, schema)
 \item{schema}{Database schema}
 }
 \value{
-void
+TRUE
 }
 \description{
 Connect to Amazon Redshift database

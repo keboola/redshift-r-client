@@ -22,7 +22,11 @@ Maintainer: Ondrej Popelka <ondrej.popelka@keboola.com>
 }
 \keyword{ database }
 \examples{
-~~ simple examples of the most important functions ~~
+## Select some data
+#redshift.select("SELECT * FROM table")
+
+## Insert some data
+#redshift.inser(data.frame())
 }
 
 

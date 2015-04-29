@@ -8,6 +8,8 @@ redshift.saveDataFrame(dfRaw, table, rowNumbers = FALSE,
   incremental = FALSE, forcedColumnTypes)
 }
 \arguments{
+\item{dfRaw}{A data frame, column names of data frame must correspond to column names of table}
+
 \item{table}{Name of the table.}
 
 \item{rowNumbers}{If true then the table will contain a column named 'row_num' with sequential row index}
@@ -15,8 +17,6 @@ redshift.saveDataFrame(dfRaw, table, rowNumbers = FALSE,
 \item{incremental}{If true then the table will not be recreated, only data will be inserted}
 
 \item{forcedColumnTypes}{List of column names and their respective types in database.}
-
-\item{df}{A data frame, column names of data frame must correspond to column names of table}
 }
 \value{
 void

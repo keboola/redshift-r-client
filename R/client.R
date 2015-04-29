@@ -1,22 +1,37 @@
+
+
+#' Current database connection (to change, use redshift.connect())
+redshift.conn <- NULL
+
+#' Current database schema (to change, use redshift.connect())
+redshift.schema <- NULL
+
 #' Connect to Amazon Redshift database
 #' 
 #' @param jdbcUrl JDBC connection string
-#' @param driver Path to the JDBC driver 
 #' @param username Database user name
 #' @param password Database password
 #' @param schema Database schema
-#' @return void
-redshift.connect <- function(jdbcUrl, driver, username, password, schema) {
-	driver <- JDBC("org.postgresql.Driver", driver, identifier.quote="`")
+#' @return TRUE
+#' @import RJDBC rJava
+redshift.connect <- function(jdbcUrl, username, password, schema) {
+    fpath <- system.file("lib", "postgresql-9.1-901.jdbc4.jar", package = "keboola.redshift.r.client")
+	driver <- JDBC("org.postgresql.Driver", fpath, identifier.quote = '"')
 	# if url has GET parameters already, then concat name and passwrod after &
 	lead <- ifelse(grepl("\\?", jdbcUrl), "&", "?")
 	url <- paste0(jdbcUrl, lead, "user=", username, "&password=", password)
 	conn <- dbConnect(driver, url)
 	# make conn global variable under the name 'redshift.conn' and 'redshift.schema'
-	assign('redshift.conn', conn, envir = .GlobalEnv)
-	assign('redshift.schema', schema, envir = .GlobalEnv)
+    assign('redshift.conn', conn, envir = getNamespace("keboola.redshift.r.client"))
+    assign('redshift.schema', schema, envir = getNamespace("keboola.redshift.r.client"))
+    
+	redshift.conn <<- conn
+	redshift.schema <<- schema
 	# set schema search path so that we don't have to use fully qualified names
 	redshift.update(paste0("SET search_path TO '", schema, "'"))
+    
+    
+    TRUE
 }
 
 #' Prepare a SQL query with quoted parameters
@@ -84,7 +99,7 @@ redshift.update <- function(sql, ...) {
 
 #' Save a dataframe to database using bulk inserts. The table will be created to accomodate to data frame columns.
 #'
-#' @param df A data frame, column names of data frame must correspond to column names of table
+#' @param dfRaw A data frame, column names of data frame must correspond to column names of table
 #' @param table Name of the table.
 #' @param rowNumbers If true then the table will contain a column named 'row_num' with sequential row index
 #' @param incremental If true then the table will not be recreated, only data will be inserted
