@@ -86,8 +86,8 @@ test_that("tableExists", {
 test_that("columnTypes", {
     driver <- RedshiftDriver$new()     
     driver$connect(host, db, user, password, schema)
-    driver$update(paste0("DROP TABLE IF EXISTS ", schema, ".foo;"))
-    driver$update(paste0("CREATE TABLE ", schema, ".foo (bar INTEGER, baz CHARACTER VARYING (200));"))
+    driver$update(paste0("DROP TABLE IF EXISTS ", driver$schema, ".foo;"))
+    driver$update(paste0("CREATE TABLE ", driver$schema, ".foo (bar INTEGER, baz CHARACTER VARYING (200));"))
     colTypes <- vector()
     colTypes[["bar"]] <- "integer"
     colTypes[["baz"]] <- "character varying"

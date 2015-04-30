@@ -1,10 +1,18 @@
+#' Class to access Redshift database
+
+#' @import methods RJDBC rJava
+#' @field conn Database connection (JDBCConnection)
+#' @field schema Current database schema
 RedshiftDriver <- setRefClass(
     'RedshiftDriver',
     fields = list(
         conn = 'ANY', # JDBCConnection | NULL
         schema = 'character'
-    ),
-    methods = list(
+    )
+)
+
+RedshiftDriver$methods (
+    #methods = list(
         initialize = function() {
             conn <<- NULL
             schema <<- ""
@@ -16,8 +24,8 @@ RedshiftDriver <- setRefClass(
         #' @param username Database user name
         #' @param password Database password
         #' @param schema Database schema
+        #' @export
         #' @return TRUE
-        #' @import RJDBC rJava        
         connect = function(host, db, user, password, schema, port = 5439) {
             libPath <- system.file("lib", "postgresql-9.1-901.jdbc4.jar", package = "keboola.redshift.r.client")
             driver <- JDBC("org.postgresql.Driver", libPath, identifier.quote = '"')
@@ -251,4 +259,4 @@ RedshiftDriver <- setRefClass(
             retVector
         }        
     )
-)
+#)
