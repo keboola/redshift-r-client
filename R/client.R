@@ -1,6 +1,7 @@
 #' Class to access Redshift database
 
 #' @import methods RJDBC rJava
+#' @export RedshiftDriver
 #' @exportClass RedshiftDriver
 #' @field conn Database connection (JDBCConnection)
 #' @field schema Current database schema
