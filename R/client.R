@@ -10,7 +10,7 @@ RedshiftDriver <- setRefClass(
     fields = list(
         conn = 'ANY', # JDBCConnection | NULL
         schema = 'character'
-    )
+    ),
     methods = list(
         initialize = function() {
             conn <<- NULL
