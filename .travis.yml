@@ -1,19 +1,12 @@
-# Sample .travis.yml for R projects from https://github.com/craigcitro/r-travis
+language: r
 
-language: c
+# Be strict when checking our package
+warnings_are_errors: true
 
-before_install:
-  - cd hw4
-  - curl -OL http://raw.github.com/craigcitro/r-travis/master/scripts/travis-tool.sh
-  - chmod 755 ./travis-tool.sh
-  - ./travis-tool.sh bootstrap
+# System dependencies for HTTP calling
+apt_packages:
+ - libcurl4-openssl-dev
+ - libxml2-dev
 
-install:
-  - ./travis-tool.sh install_r testthat
-  - ./travis-tool.sh install_r stringr
-
-script: 
-  - Rscript -e "library(testthat);invisible(source_dir('./',env=globalenv()));test_dir('tests');test_dir('tests',reporter='stop')"
-
-notifications:
-  email: false
+r_packages:
+ - testthat
