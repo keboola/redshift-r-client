@@ -3,7 +3,7 @@ language: r
 sudo: required
 
 jdk:
-- openjdk7
+- oraclejdk8
 
 # Be strict when checking our package
 warnings_are_errors: true
