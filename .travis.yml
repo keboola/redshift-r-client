@@ -15,3 +15,6 @@ before-install:
 
 # Be strict when checking our package
 warnings_are_errors: true
+
+notifications:
+  slack: keboola:8EW7Y0Kqvxxames1Rfp6feaE
