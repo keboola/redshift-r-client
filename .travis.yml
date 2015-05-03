@@ -2,8 +2,12 @@ language: r
 
 sudo: required
 
-jdk:
+java:
 - oraclejdk8
+
+before-install:
+ - export LD_LIBRARY_PATH=/usr/lib/jvm/java-8-oracle/lib/amd64:/usr/lib/jvm/java-8-oracle/jre/lib/amd64/server
+ - sudo R CMD javareconf 
 
 # Be strict when checking our package
 warnings_are_errors: true
