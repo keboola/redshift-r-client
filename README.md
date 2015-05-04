@@ -6,6 +6,13 @@ Most methods are just wrappers around RJDBC methods. A specical method is used f
 data frames into database which is done with compound INSERT statements which perform much better
 than individual INSERT statements.
 
+## Installation
+Package is available only on Github, so you need to use `devtools` to install the package
+```
+library('devtools')
+install_github('keboola/provisioning-r-client', ref = 'master')
+```
+
 ## Usage
 ```
 # connect to database
