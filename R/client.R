@@ -23,7 +23,7 @@ RedshiftDriver <- setRefClass(
         #' @param username Database user name
         #' @param password Database password
         #' @param schema Database schema
-        #' @export
+        #' @exportMethod
         #' @return TRUE
         connect = function(host, db, user, password, schema, port = 5439) {
             libPath <- system.file("lib", "postgresql-9.1-901.jdbc4.jar", package = "keboola.redshift.r.client")
@@ -42,6 +42,7 @@ RedshiftDriver <- setRefClass(
         #' @param sql SQL string, parameter placeholders are marked with ?
         #' @param ... Query parameters, number of parameters must be same as number of 
         #'  question marks
+        #' @exportMethod
         #' @return SQL string
         prepareStatement = function(sql, ...) {
             parameters <- list(...)
@@ -65,7 +66,8 @@ RedshiftDriver <- setRefClass(
         #' Select data from database
         #' 
         #' @param sql Query string, may contain placeholders ? for parameters
-        #' @param ... Query parameters 
+        #' @param ... Query parameters
+        #' @exportMethod
         #' @return A dataframe with results
         select = function(sql, ...) {
             sql <- prepareStatement(sql, ...)
@@ -83,7 +85,8 @@ RedshiftDriver <- setRefClass(
         #' Update/Insert data to database
         #' 
         #' @param sql Query string, may contain placeholders ? for parameters
-        #' @param ... Query parameters 
+        #' @param ... Query parameters
+        #' @exportMethod
         #' @return TRUE
         update = function(sql, ...) {
             sql <- prepareStatement(sql, ...)
@@ -105,6 +108,7 @@ RedshiftDriver <- setRefClass(
         #' @param rowNumbers If true then the table will contain a column named 'row_num' with sequential row index
         #' @param incremental If true then the table will not be recreated, only data will be inserted
         #' @param forcedColumnTypes List of column names and their respective types in database.
+        #' @exportMethod
         #' @return void
         saveDataFrame = function(dfRaw, table, rowNumbers = FALSE, incremental = FALSE, forcedColumnTypes) {
             # drop the table if already exists and loading is not incremental
@@ -240,6 +244,7 @@ RedshiftDriver <- setRefClass(
         #'
         #' @param tableName Name of the table (without schema).
         #' @return logical TRUE if the table exists, FALSE otherwise.
+        #' @exportMethod
         tableExists = function(tableName) {
             res <- select("SELECT COUNT(*) AS count FROM information_schema.tables WHERE table_schema ILIKE ? AND table_name ILIKE ?;", schema, tableName);
             ret <- res[1, 'count'] > 0
@@ -250,6 +255,7 @@ RedshiftDriver <- setRefClass(
         #' 
         #' @param tableName Name of the table (including schema).
         #' @return Named vector, name is column name, value is datatype
+        #' @exportMethod
         columnTypes = function(tableName) {
             ret <- select("SELECT column_name, data_type FROM information_schema.columns WHERE (table_schema || '.' || table_name) ILIKE ?;", tableName);
             colnames(ret) <- c('column', 'dataType')    
