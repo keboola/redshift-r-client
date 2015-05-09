@@ -11,10 +11,7 @@ RedshiftDriver <- setRefClass(
         conn = 'ANY', # JDBCConnection | NULL
         schema = 'character'
     )
-)
-
-RedshiftDriver$methods (
-    #methods = list(
+    methods = list(
         initialize = function() {
             conn <<- NULL
             schema <<- ""
@@ -261,4 +258,4 @@ RedshiftDriver$methods (
             retVector
         }        
     )
-#)
+)
