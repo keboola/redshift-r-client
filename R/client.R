@@ -225,7 +225,7 @@ RedshiftDriver <- setRefClass(
                     if (sqlLength > sqlLimit) {
                         # query length is over limit, execute it
                         sql <- paste0(sqlHeader, paste(sqlVals, collapse = ", "))
-                        redshift.update(sql)
+                        update(sql)
                         # clear row values
                         sqlLength <- 0
                         sqlVals <- list()
