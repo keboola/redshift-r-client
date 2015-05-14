@@ -163,7 +163,7 @@ RedshiftDriver <- setRefClass(
                 }
                 # drop the table if necessary
                 if (tableExists(table)) {
-                    update(paste0("DROP TABLE ", tableFull, ";"))
+                    update(paste0("DROP TABLE ", tableFull, " CASCADE;"))
                 }
                 # create the table
                 sql <- paste0("CREATE TABLE ", tableFull, " (", paste(columns, collapse = ", "), ");")
