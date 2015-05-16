@@ -253,11 +253,11 @@ RedshiftDriver <- setRefClass(
         
         #' Get list of columns in table and their datatypes
         #' 
-        #' @param tableName Name of the table (including schema).
+        #' @param tableName Name of the table (without schema).
         #' @return Named vector, name is column name, value is datatype
         #' @exportMethod
         columnTypes = function(tableName) {
-            ret <- select("SELECT column_name, data_type FROM information_schema.columns WHERE (table_schema || '.' || table_name) ILIKE ?;", tableName);
+            ret <- select("SELECT column_name, data_type FROM information_schema.columns WHERE (table_schema ILIKE ?) AND (table_name ILIKE ?);", schema, tableName);
             colnames(ret) <- c('column', 'dataType')    
             retVector <- as.vector(ret[,'dataType'])
             names(retVector) <- ret[,'column']

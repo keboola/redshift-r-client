@@ -93,7 +93,7 @@ test_that("columnTypes", {
     colTypes[["baz"]] <- "character varying"
     
     expect_equal(
-        sort(driver$columnTypes(paste0(schema, ".foo"))),
+        sort(driver$columnTypes('foo')),
         sort(colTypes)
     )
     expect_equal(
