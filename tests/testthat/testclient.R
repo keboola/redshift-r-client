@@ -3,11 +3,11 @@ library('keboola.redshift.r.client')
 test_that("connect", {
     driver <- RedshiftDriver$new()     
     expect_equal(
-        driver$connect(host, db, user, password, schema), 
+        driver$connect(RS_HOST, RS_DB, RS_USER, RS_PASSWORD, RS_SCHEMA), 
         TRUE
     )
     expect_that(
-        driver$connect("invalid", db, user, password, schema),
+        driver$connect("invalid", RS_DB, RS_USER, RS_PASSWORD, RS_SCHEMA),
         throws_error()
     )
     
@@ -35,7 +35,7 @@ test_that("update", {
         driver$update("CREATE TABLE foo (bar INTEGER);"), 
         throws_error()
     )
-    driver$connect(host, db, user, password, schema)
+    driver$connect(RS_HOST, RS_DB, RS_USER, RS_PASSWORD, RS_SCHEMA)
     driver$update("DROP TABLE IF EXISTS foo CASCADE;")
     
     expect_equal(
@@ -54,7 +54,7 @@ test_that("update", {
         driver$update("CREATE TABLE foo (bar INTEGER);"), 
         throws_error()
     )
-    driver$connect(host, db, user, password, schema)
+    driver$connect(RS_HOST, RS_DB, RS_USER, RS_PASSWORD, RS_SCHEMA)
     driver$update("DROP TABLE IF EXISTS foo CASCADE;")
     
     expect_equal(
@@ -69,7 +69,7 @@ test_that("update", {
 
 test_that("tableExists", {
     driver <- RedshiftDriver$new()     
-    driver$connect(host, db, user, password, schema)
+    driver$connect(RS_HOST, RS_DB, RS_USER, RS_PASSWORD, RS_SCHEMA)
     driver$update("DROP TABLE IF EXISTS foo CASCADE;")
     driver$update("CREATE TABLE foo (bar INTEGER);")
     
@@ -85,7 +85,7 @@ test_that("tableExists", {
 
 test_that("columnTypes", {
     driver <- RedshiftDriver$new()     
-    driver$connect(host, db, user, password, schema)
+    driver$connect(RS_HOST, RS_DB, RS_USER, RS_PASSWORD, RS_SCHEMA)
     driver$update(paste0("DROP TABLE IF EXISTS ", driver$schema, ".foo CASCADE;"))
     driver$update(paste0("CREATE TABLE ", driver$schema, ".foo (bar INTEGER, baz CHARACTER VARYING (200));"))
     colTypes <- vector()
@@ -104,7 +104,7 @@ test_that("columnTypes", {
 
 test_that("saveDataFrame", {
     driver <- RedshiftDriver$new()     
-    driver$connect(host, db, user, password, schema)
+    driver$connect(RS_HOST, RS_DB, RS_USER, RS_PASSWORD, RS_SCHEMA)
     driver$update("DROP TABLE IF EXISTS fooBar CASCADE;")
     df <- data.frame("foo" = c(1,3,5), "bar" = c("one", "three", "five"))
     driver$saveDataFrame(df, "fooBar", rowNumbers = FALSE, incremental = FALSE)
@@ -129,7 +129,7 @@ test_that("saveDataFrame", {
     )
     
     driver$update("DROP TABLE IF EXISTS fooBar CASCADE;")
-    driver$update(paste0("CREATE TABLE ", schema, ".fooBar (bar INTEGER);"))
+    driver$update(paste0("CREATE TABLE ", RS_SCHEMA, ".fooBar (bar INTEGER);"))
     # verify that the old table will get deleted
     df <- data.frame("foo" = c(1,3,5), "bar" = c("one", "three", "five"))
     driver$saveDataFrame(df, "fooBar", rowNumbers = FALSE, incremental = FALSE)
@@ -142,8 +142,8 @@ test_that("saveDataFrame", {
     )
     
     driver$update("DROP TABLE IF EXISTS fooBar CASCADE;")
-    driver$update(paste0("CREATE TABLE ", schema, ".fooBar (bar INTEGER);"))
-    driver$update(paste0("CREATE VIEW ", schema, ".basBar AS (SELECT * FROM ", schema, ".fooBar);"))
+    driver$update(paste0("CREATE TABLE ", RS_SCHEMA, ".fooBar (bar INTEGER);"))
+    driver$update(paste0("CREATE VIEW ", RS_SCHEMA, ".basBar AS (SELECT * FROM ", RS_SCHEMA, ".fooBar);"))
     # verify that the old table will get deleted even whant it has dependencies
     df <- data.frame("foo" = c(1,3,5), "bar" = c("one", "three", "five"))
     driver$saveDataFrame(df, "fooBar", rowNumbers = FALSE, incremental = FALSE)
@@ -156,7 +156,7 @@ test_that("saveDataFrame", {
     )
     
     driver$update("DROP TABLE IF EXISTS fooBar CASCADE;")
-    driver$update(paste0("CREATE TABLE ", schema, ".fooBar (bar INTEGER);"))
+    driver$update(paste0("CREATE TABLE ", RS_SCHEMA, ".fooBar (bar INTEGER);"))
     # verify that the old table will not get deleted
     expect_that(
         driver$saveDataFrame(df, "fooBar", rowNumbers = FALSE, incremental = TRUE),
