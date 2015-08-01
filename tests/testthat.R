@@ -6,6 +6,7 @@ RS_DB <- "fooBar"
 RS_SCHEMA <- "fooBar"
 RS_USER <- "fooBar"
 RS_PASSWORD <- "fooBar"
+DATA_DIR <- "../tests/data"
 
 # override with config if any
 if (file.exists("config.R")) {
@@ -28,5 +29,9 @@ if (nchar(Sys.getenv("RS_USER")) > 0) {
 if (nchar(Sys.getenv("RS_PASSWORD")) > 0) {
     RS_PASSWORD <- Sys.getenv("RS_PASSWORD")  
 }
+if (nchar(Sys.getenv("DATA_DIR")) > 0) {
+    DATA_DIR <- Sys.getenv("DATA_DIR")  
+}
+
 
 test_check("keboola.redshift.r.client")
