@@ -163,3 +163,16 @@ test_that("saveDataFrame", {
         throws_error()
     )
 })
+
+
+test_that("saveDataFrameFile", {
+    driver <- RedshiftDriver$new()     
+    driver$connect(RS_HOST, RS_DB, RS_USER, RS_PASSWORD, RS_SCHEMA)
+    driver$update("DROP TABLE IF EXISTS fooBar CASCADE;")
+    df <- read.csv(file.path(DATA_DIR, 'data1.csv'))
+    df$timestamp <- as.POSIXlt(df$timestamp, tz = 'UTC')
+    driver$saveDataFrame(df, "fooBar", rowNumbers = FALSE, incremental = FALSE)
+    dfResult <- driver$select("SELECT \"timestamp\", anoms, expected_value FROM fooBar ORDER BY \"timestamp\";")
+    dfResult$timestamp <- as.POSIXlt(df$timestamp, tz = 'UTC')
+    expect_equal(nrow(df), nrow(df[which(dfResult$timestamp == df$timestamp),]))
+})

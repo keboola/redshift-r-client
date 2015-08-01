@@ -128,6 +128,7 @@ RedshiftDriver <- setRefClass(
                 
                 # get column types
                 types <- lapply(df, typeof)
+                classes <- lapply(df, class)
                 
                 # convert column types to database types and create list of column defininitions
                 if (rowNumbers) {
@@ -137,20 +138,21 @@ RedshiftDriver <- setRefClass(
                 }
                 for (name in names(types)) {
                     type <- "";
-                    if (types[[name]] == 'double') {
+                    if ('POSIXt' %in% classes[[name]]) {
+                        # handles both POSIXct and POSIXlt as POSIXt is common ancestor
+                        type <- 'TIMESTAMP'
+                    } else if (types[[name]] == 'double') {
                         type <- 'DECIMAL (30,20)'
-                    }
-                    if (types[[name]] == 'integer') {
+                    } else if (types[[name]] == 'integer') {
                         type <- 'BIGINT'
-                    }
-                    if (types[[name]] == 'logical') {
+                    } else if (types[[name]] == 'logical') {
                         type <- 'INTEGER'
-                    }
-                    if (types[[name]] == 'character') {
+                    } else if (types[[name]] == 'character') {
                         type <- 'VARCHAR(2000)'
-                    }
-                    if (types[[name]] == 'NULL') {
+                    } else if (types[[name]] == 'NULL') {
                         type <- 'INTEGER'
+                    } else {
+                        stop(paste0("Unknown type: ", types[[name]], ' or class: ', classes[[name]]))
                     }
                     
                     if (!missing(forcedColumnTypes) && (name %in% names(forcedColumnTypes))) {
