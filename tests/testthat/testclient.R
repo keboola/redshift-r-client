@@ -27,6 +27,14 @@ test_that("prepare", {
         driver$prepareStatement("SELECT * FROM foo WHERE bar = ?", 42), 
         "SELECT * FROM foo WHERE bar = '42'"
     )
+    expect_equal(
+        driver$prepareStatement("SELECT * FROM foo WHERE bar = ? AND baz = ?", list(bar=42,baz=21)), 
+        "SELECT * FROM foo WHERE bar = '42' AND baz = '21'"
+    )
+    expect_equal(
+        driver$prepareStatement("SELECT * FROM foo WHERE bar = ? AND baz = ?", 42, 21), 
+        "SELECT * FROM foo WHERE bar = '42' AND baz = '21'"
+    )
 })
 
 test_that("update", {
