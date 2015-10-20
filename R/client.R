@@ -46,7 +46,7 @@ RedshiftDriver <- setRefClass(
         #' @return SQL string
         prepareStatement = function(sql, ...) {
             parameters <- list(...)
-            quotedParametrs <- lapply(
+            quotedParameters <- lapply(
                 X = parameters, 
                 function (value) {
                     # escape the quotes (if any) in a value
@@ -55,9 +55,10 @@ RedshiftDriver <- setRefClass(
                     value <- paste0("'", value, "'")
                 }
             )
-            if (length(quotedParametrs) > 0) {
-                for (i in 1:length(quotedParametrs)) {
-                    sql <- sub("\\?", quotedParametrs[[i]], sql)
+            quotedParameters <- unlist(quotedParameters)
+            if (length(quotedParameters) > 0) {
+                for (i in 1:length(quotedParameters)) {
+                    sql <- sub("\\?", quotedParameters[[i]], sql)
                 }
             }
             sql
@@ -73,6 +74,7 @@ RedshiftDriver <- setRefClass(
             sql <- prepareStatement(sql, ...)
             tryCatch(
                 {
+                    print(paste("attempting query:",sql))
                     ret <- dbGetQuery(conn, sql)
                 },
                 error = function(e) {
@@ -80,6 +82,36 @@ RedshiftDriver <- setRefClass(
                 }
             )
             ret
+        },
+        
+        #' Select via JDBS result set fetching to avoid memory restraints
+        #' 
+        #' @param statement Prepared Query statement
+        #' @param maxmem Upper limit in bytes of read - default 500MB
+        #' @param chunksize Rows to return per fetch - default 32k for 1st fetch, then 512k
+        #' @exportMethod
+        #' @return data.frame
+        fetch = function(statement, maxmem = 500000000, chunksize = -1) {
+            out <- data.frame()
+            print(paste("sending query",maxmem,"maxmem", chunksize, "chunksize"))
+            results <- RJDBC::dbSendQuery(conn, statement)
+            print("query sent")
+            print(paste("resultInfo", dbGetInfo(results)))
+            partialResults <- TRUE
+            tryCatch(
+            {
+                while (object.size(out) < maxmem && partialResults) {
+                    print("trying to fetch")
+                    partialResults <- fetch(results, chunksize)
+                    print(paste("fetched res with size", nrow(partialResults)))
+                    if (partialResults) {
+                        out <- rbind(out, partialResults)    
+                    }
+                }
+            }, error = function(e) {
+                stop(paste("Error fetching data", e))
+            })
+            out
         },
         
         #' Update/Insert data to database
