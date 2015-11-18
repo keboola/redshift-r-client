@@ -30,6 +30,7 @@ Class to access Redshift database
 \item{\code{username} Database user name.}
 \item{\code{password} Database password.}
 \item{\code{schema} Database schema.}
+\item{\code{port} Database server port.}
 }}
 \subsection{Return Value}{TRUE}}
 

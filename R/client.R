@@ -27,7 +27,7 @@ RedshiftDriver <- setRefClass(
             \\item{\\code{port} Database server port.}
             }}
             \\subsection{Return Value}{TRUE}"
-            libPath <- system.file("lib", "postgresql-9.1-901.jdbc4.jar", package = "keboola.redshift.r.client")
+            libPath <- system.file("lib", "postgresql-9.4-1205.jdbc4.jar", package = "keboola.redshift.r.client")
             driver <- JDBC("org.postgresql.Driver", libPath, identifier.quote = '"')
             jdbcUrl <- paste0("jdbc:postgresql://", host, ":", port,  "/", db)
             # if url has GET parameters already, then concat name and password after &
