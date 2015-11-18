@@ -17,15 +17,16 @@ RedshiftDriver <- setRefClass(
             schema <<- ""
         },
         
-        #' Connect to Amazon Redshift database
-        #' 
-        #' @param jdbcUrl JDBC connection string
-        #' @param username Database user name
-        #' @param password Database password
-        #' @param schema Database schema
-        #' @exportMethod
-        #' @return TRUE
         connect = function(host, db, user, password, schema, port = 5439) {
+            "Connect to Amazon Redshift database.
+            \\subsection{Parameters}{\\itemize{
+            \\item{\\code{jdbcUrl} JDBC connection string.}
+            \\item{\\code{username} Database user name.}
+            \\item{\\code{password} Database password.}
+            \\item{\\code{schema} Database schema.}
+            \\item{\\code{port} Database server port.}
+            }}
+            \\subsection{Return Value}{TRUE}"
             libPath <- system.file("lib", "postgresql-9.1-901.jdbc4.jar", package = "keboola.redshift.r.client")
             driver <- JDBC("org.postgresql.Driver", libPath, identifier.quote = '"')
             jdbcUrl <- paste0("jdbc:postgresql://", host, ":", port,  "/", db)
@@ -37,14 +38,13 @@ RedshiftDriver <- setRefClass(
             TRUE
         },
         
-        #' Prepare a SQL query with quoted parameters
-        #' 
-        #' @param sql SQL string, parameter placeholders are marked with ?
-        #' @param ... Query parameters, number of parameters must be same as number of 
-        #'  question marks
-        #' @exportMethod
-        #' @return SQL string
         prepareStatement = function(sql, ...) {
+            "Prepare a SQL query with quoted parameters.
+            \\subsection{Parameters}{\\itemize{
+            \\item{\\code{sql} SQL string, parameter placeholders are marked with ?.}
+            \\item{\\code{...} Query parameters, number of parameters must be same as number of question marks.}
+            }}
+            \\subsection{Return Value}{SQL string}"
             parameters <- list(...)
             quotedParameters <- lapply(
                 X = parameters, 
@@ -64,13 +64,13 @@ RedshiftDriver <- setRefClass(
             sql
         },
         
-        #' Select data from database
-        #' 
-        #' @param sql Query string, may contain placeholders ? for parameters
-        #' @param ... Query parameters
-        #' @exportMethod
-        #' @return A dataframe with results
         select = function(sql, ...) {
+            "Select data from database.
+            \\subsection{Parameters}{\\itemize{
+            \\item{\\code{sql} Query string, may contain placeholders ? for parameters.}
+            \\item{\\code{...} Query parameters, number of parameters must be same as number of question marks.}
+            }}
+            \\subsection{Return Value}{A data.frame with results}"
             sql <- prepareStatement(sql, ...)
             tryCatch(
                 {
@@ -84,14 +84,14 @@ RedshiftDriver <- setRefClass(
             ret
         },
         
-        #' Select via JDBS result set fetching to avoid memory restraints
-        #' 
-        #' @param statement Prepared Query statement
-        #' @param maxmem Upper limit in bytes of read - default 500MB
-        #' @param chunksize Rows to return per fetch - default 32k for 1st fetch, then 512k
-        #' @exportMethod
-        #' @return data.frame
         fetch = function(statement, maxmem = 500000000, chunksize = -1) {
+            "Select via JDBC result set fetching to avoid memory restraints.
+            \\subsection{Parameters}{\\itemize{
+            \\item{\\code{statement} Prepared Query statement.}
+            \\item{\\code{maxmem} Upper limit in bytes of read - default 500MB.}
+            \\item{\\code{chunksize} Rows to return per fetch - default 32k for 1st fetch, then 512k.}
+            }}
+            \\subsection{Return Value}{A data.frame with results}"
             out <- data.frame()
             print(paste("sending query",maxmem,"maxmem", chunksize, "chunksize"))
             results <- RJDBC::dbSendQuery(conn, statement)
@@ -114,13 +114,13 @@ RedshiftDriver <- setRefClass(
             out
         },
         
-        #' Update/Insert data to database
-        #' 
-        #' @param sql Query string, may contain placeholders ? for parameters
-        #' @param ... Query parameters
-        #' @exportMethod
-        #' @return TRUE
         update = function(sql, ...) {
+            "Update/Insert data to database.
+            \\subsection{Parameters}{\\itemize{
+            \\item{\\code{sql} Query string, may contain placeholders ? for parameters.}
+            \\item{\\code{...} Query parameters.}
+            }}
+            \\subsection{Return Value}{TRUE}"
             sql <- prepareStatement(sql, ...)
             tryCatch(
                 {
@@ -133,16 +133,16 @@ RedshiftDriver <- setRefClass(
             TRUE
         },
 
-        #' Save a dataframe to database using bulk inserts. The table will be created to accomodate to data frame columns.
-        #'
-        #' @param dfRaw A data frame, column names of data frame must correspond to column names of table
-        #' @param table Name of the table.
-        #' @param rowNumbers If true then the table will contain a column named 'row_num' with sequential row index
-        #' @param incremental If true then the table will not be recreated, only data will be inserted
-        #' @param forcedColumnTypes List of column names and their respective types in database.
-        #' @exportMethod
-        #' @return void
         saveDataFrame = function(dfRaw, table, rowNumbers = FALSE, incremental = FALSE, forcedColumnTypes) {
+            "Save a dataframe to database using bulk inserts. The table will be created to accomodate to data frame columns.
+            \\subsection{Parameters}{\\itemize{
+            \\item{\\code{dfRaw} A data.frame, column names of data frame must correspond to column names of table.}
+            \\item{\\code{table} Name of the table.}
+            \\item{\\code{rowNumbers} If true then the table will contain a column named 'row_num' with sequential row index}
+            \\item{\\code{incremental} If true then the table will not be recreated, only data will be inserted.}
+            \\item{\\code{forcedColumnTypes} List of column names and their respective types in database.}
+            }}
+            \\subsection{Return Value}{TRUE}"
             # drop the table if already exists and loading is not incremental
             tableFull <- paste0(schema, '.', table)
             if (!incremental) {
@@ -274,23 +274,23 @@ RedshiftDriver <- setRefClass(
             TRUE
         },
         
-        #' Verify that a table exists in database
-        #'
-        #' @param tableName Name of the table (without schema).
-        #' @return logical TRUE if the table exists, FALSE otherwise.
-        #' @exportMethod
         tableExists = function(tableName) {
+            "Verify that a table exists in database.
+            \\subsection{Parameters}{\\itemize{
+            \\item{\\code{tableName} Name of the table (without schema).}
+            }}
+            \\subsection{Return Value}{TRUE if the table exists, FALSE otherwise.}"
             res <- select("SELECT COUNT(*) AS count FROM information_schema.tables WHERE table_schema ILIKE ? AND table_name ILIKE ?;", schema, tableName);
             ret <- res[1, 'count'] > 0
             ret
         },
         
-        #' Get list of columns in table and their datatypes
-        #' 
-        #' @param tableName Name of the table (without schema).
-        #' @return Named vector, name is column name, value is datatype
-        #' @exportMethod
         columnTypes = function(tableName) {
+            "Get list of columns in table and their datatypes.
+            \\subsection{Parameters}{\\itemize{
+            \\item{\\code{tableName} Name of the table (without schema).}
+            }}
+            \\subsection{Return Value}{Named vector, name is column name, value is datatype.}"
             ret <- select("SELECT column_name, data_type FROM information_schema.columns WHERE (table_schema ILIKE ?) AND (table_name ILIKE ?);", schema, tableName);
             colnames(ret) <- c('column', 'dataType')    
             retVector <- as.vector(ret[,'dataType'])

@@ -5,11 +5,12 @@ Version: 1.0
 Date: 2015-04-28
 Author: Ondrej Popelka
 Maintainer: Ondrej Popelka <ondrej.popelka@keboola.com>
-Depends: 
-    RJDBC, 
-    rJava, 
+Depends:
+    RJDBC,
+    rJava,
     methods
-Suggests: 
+Suggests:
     testthat
 Description: A set of methods for working with Amazon Redshift database.
 License: MIT + file LICENSE
+RoxygenNote: 5.0.0.9000
