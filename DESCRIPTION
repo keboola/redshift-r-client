@@ -13,4 +13,4 @@ Suggests:
     testthat
 Description: A set of methods for working with Amazon Redshift database.
 License: MIT + file LICENSE
-RoxygenNote: 5.0.0.9000
+RoxygenNote: 5.0.1

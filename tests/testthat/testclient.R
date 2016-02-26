@@ -13,6 +13,7 @@ test_that("connect", {
     
 })
 
+
 test_that("prepare", {
     driver <- RedshiftDriver$new()     
     expect_equal(
@@ -183,4 +184,18 @@ test_that("saveDataFrameFile", {
     dfResult <- driver$select("SELECT \"timestamp\", anoms, expected_value FROM fooBar ORDER BY \"timestamp\";")
     dfResult$timestamp <- as.POSIXlt(df$timestamp, tz = 'UTC')
     expect_equal(nrow(df), nrow(df[which(dfResult$timestamp == df$timestamp),]))
+})
+
+
+test_that("saveDataFrameScientific", {
+    driver <- RedshiftDriver$new()
+    driver$connect(RS_HOST, RS_DB, RS_USER, RS_PASSWORD, RS_SCHEMA)
+    driver$update("DROP TABLE IF EXISTS fooBar CASCADE;")
+    df <- data.frame(
+        id = c(1, 2, 6e+05),
+        text = c('a', 'b', 'c')
+    )
+    driver$saveDataFrame(df, "fooBar", rowNumbers = FALSE, incremental = FALSE, forcedColumnTypes = list(id = "integer", text = "character"))
+    dfResult <- driver$select("SELECT id, text FROM fooBar;")
+    expect_equal(nrow(df), nrow(dfResult))
 })
