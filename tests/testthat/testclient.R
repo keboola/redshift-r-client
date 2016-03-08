@@ -193,8 +193,13 @@ test_that("saveDataFrameScientific", {
     driver$update("DROP TABLE IF EXISTS fooBar CASCADE;")
     df <- data.frame(
         id = c(1, 2, 6e+05),
-        text = c('a', 'b', NA)
+        text = character(3),
+        fact = c('fact1', 'fact2', 'fact2'),
+        stringsAsFactors = FALSE
     )
+    df[1, 'text'] <- 'a'
+    df[2, 'text'] <- NA
+    df[['fact']] <- factor(df[['fact']])
     driver$saveDataFrame(df, "fooBar", rowNumbers = FALSE, incremental = FALSE, forcedColumnTypes = list(id = "integer", text = "character"))
     dfResult <- driver$select("SELECT id, text FROM fooBar;")
     expect_equal(nrow(df), nrow(dfResult))
@@ -206,7 +211,7 @@ test_that("saveDataFrameLarge", {
     driver$connect(RS_HOST, RS_DB, RS_USER, RS_PASSWORD, RS_SCHEMA)
     driver$update("DROP TABLE IF EXISTS fooBar CASCADE;")
     df <- data.frame(a = rep('a', 10000), b = seq(1, 10000))
-    driver$saveDataFrame(df, "fooBar", rowNumbers = FALSE, incremental = FALSE)
+    driver$saveDataFrame(df, "fooBar", rowNumbers = FALSE, incremental = FALSE, displayProgress = FALSE)
     dfff <- driver$select("SELECT a,b FROM fooBar ORDER BY b;")
     dfResult <- driver$select("SELECT COUNT(*) AS cnt FROM fooBar;")
     expect_equal(dfResult[1, 'cnt'], nrow(df))

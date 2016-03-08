@@ -50,13 +50,14 @@ Class to access Redshift database
 \subsection{Return Value}{SQL string}}
 
 \item{\code{saveDataFrame(dfRaw, table, rowNumbers = FALSE, incremental = FALSE,
-  forcedColumnTypes)}}{Save a dataframe to database using bulk inserts. The table will be created to accomodate to data frame columns.
+  forcedColumnTypes, displayProgress)}}{Save a dataframe to database using bulk inserts. The table will be created to accomodate to data frame columns.
 \subsection{Parameters}{\itemize{
 \item{\code{dfRaw} A data.frame, column names of data frame must correspond to column names of table.}
 \item{\code{table} Name of the table.}
 \item{\code{rowNumbers} If true then the table will contain a column named 'row_num' with sequential row index}
 \item{\code{incremental} If true then the table will not be recreated, only data will be inserted.}
-\item{\code{forcedColumnTypes} List of column names and their respective types in database.}
+\item{\code{forcedColumnTypes} Optional list of column names and their respective types in database.}
+\item{\code{displayProgress} Optional logical, if set to true, saving progress will be displayed.}
 }}
 \subsection{Return Value}{TRUE}}
 

@@ -235,33 +235,28 @@ RedshiftDriver <- setRefClass(
                     ptm <- proc.time()
                     rows <- df[from:min(nrow(df), to), ]
 
-                    
-                    sqlVals <- apply(, MARGIN = 1, FUN = function(row) {
-                        # escape and quote all values
-                        print(row)
-                        row <- lapply(
-                            X = row, 
-                            function (value) {
-                                cat(value)
-                                cat(class(value))
-                                if (is.null(value) || is.na(value)) {
-                                    cat('h')
-                                    value <- "NULL"
-                                } else {
-                                    cat('k')
-                                    # escape the quotes (if any) in a value
-                                    value <- gsub("'", "''", value)
-                                    # quote the value
-                                    value <- paste0("'", value, "'")
-                                }
-                            }
-                        )
+                    rows <- sapply(rows, function(col) {
+                        if (is.numeric(col)) {
+                            col <- format(col, scientific = FALSE)
+                        } else {
+                            col <- as.character(col)
+                        }
+                        # put in literal null if empty value or escape the quotes (if any) in a value and quote it
+                        col <- ifelse(is.na(col) | is.null(col), 'NULL', paste0("'", gsub("'", "''", col), "'"))
+                        col
+                    })
+                    if (rowNumbers) {
+                        assign("rowCounter", 1, envir = .GlobalEnv)
+                    }
+                    sqlVals <- apply(rows, MARGIN = 1, FUN = function(row) {
                         # produce a single row of values
                         if (rowNumbers) {
-                            row <- paste0("('", i, "', ", paste(row, collapse = ", "), ")")
+                            row <- paste0("('", rowCounter, "', ", paste(row, collapse = ", "), ")")
+                            assign("rowCounter", rowCounter + 1, envir = .GlobalEnv)
                         } else {
                             row <- paste0("(", paste(row, collapse = ", "), ")")
-                        }                    
+                        }
+                        row
                     })
                     
                     tm <- (proc.time() - ptm)[['elapsed']]
