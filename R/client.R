@@ -211,7 +211,8 @@ RedshiftDriver <- setRefClass(
             
             # Maximum size of a statement is 16MB http://docs.aws.amazon.com/redshift/latest/dg/c_redshift-sql.html	
             # set the limit a little bit lower, because the counting is not precise
-            sqlLimit <- 5000000 
+            sqlLimit <- 500000
+            rowLimit <- 1000
             # create query header
             colNames <- colnames(df)
             colNames <- lapply(
@@ -231,7 +232,12 @@ RedshiftDriver <- setRefClass(
             sqlLength <- 0
             
             if (nrow(df) > 0) {
-                # data frame is non-empty 
+                # data frame is non-empty
+                cntr <- 0
+                from <- 0
+                to <- rowLimit
+                ptm <- proc.time()
+                rows <- df[1:1000, ]
                 for (i in 1:nrow(df)) {
                     # save row so as not to modify the original data frame
                     row <- df[i,]
@@ -261,18 +267,25 @@ RedshiftDriver <- setRefClass(
                     sqlVals <- c(sqlVals, sqlVal)
                     # keep track of length of the list
                     sqlLength <- sqlLength + nchar(sqlVal)
-                    if (sqlLength > sqlLimit) {
+                    cntr <- cntr + 1;
+                    if ((sqlLength > sqlLimit) || (cntr > 1000)) {
+                        tm <- (proc.time() - ptm)[['elapsed']]
+                        write(paste0('Saving query: ', sqlLength, " row: ", i, " tm: ", tm, " r/s:", cntr / tm), stdout())
                         # query length is over limit, execute it
                         sql <- paste0(sqlHeader, paste(sqlVals, collapse = ", "))
                         update(sql)
+                        write(paste0('Query executed ', sqlLength), stdout())
                         # clear row values
                         sqlLength <- 0
                         sqlVals <- list()
+                        cntr <- 0
+                        ptm <- proc.time()
                     }
                 }
             }
             # if there are some rows left, insert them 
             if (sqlLength > 0) {
+                write(paste0('Finalizing query: ', sqlLength), stdout())
                 sql <- paste0(sqlHeader, paste(sqlVals, collapse = ", "))
                 update(sql)
             }
