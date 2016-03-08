@@ -173,27 +173,29 @@ RedshiftDriver <- setRefClass(
                     columns <- list()		
                 }
                 for (name in names(types)) {
-                    type <- "";
+                    type <- types[[name]];
                     if ('POSIXt' %in% classes[[name]]) {
                         # handles both POSIXct and POSIXlt as POSIXt is common ancestor
-                        type <- 'TIMESTAMP'
-                    } else if (types[[name]] == 'double') {
-                        type <- 'DECIMAL (30,20)'
-                    } else if (types[[name]] == 'integer') {
-                        type <- 'BIGINT'
-                    } else if (types[[name]] == 'logical') {
-                        type <- 'INTEGER'
-                    } else if (types[[name]] == 'character') {
-                        type <- 'VARCHAR(2000)'
-                    } else if (types[[name]] == 'NULL') {
-                        type <- 'INTEGER'
-                    } else {
-                        stop(paste0("Unknown type: ", types[[name]], ' or class: ', classes[[name]]))
+                        type <- 'POSIXt'
                     }
-                    
                     if (!missing(forcedColumnTypes) && (name %in% names(forcedColumnTypes))) {
                         type <- as.character(forcedColumnTypes[[name]])
                     }
+                    
+                    if (type == 'POSIXt') {
+                        type <- 'TIMESTAMP'
+                    } else if (type == 'double') {
+                        type <- 'DECIMAL (30,20)'
+                    } else if (type == 'integer') {
+                        type <- 'BIGINT'
+                    } else if (type == 'logical') {
+                        type <- 'INTEGER'
+                    } else if (type == 'character') {
+                        type <- 'VARCHAR(2000)'
+                    } else if (type == 'NULL') {
+                        type <- 'INTEGER'
+                    }
+                    
                     if (type == "") {
                         stop(paste0("Unhandled column type ", types[[name]]))
                     }
@@ -205,6 +207,7 @@ RedshiftDriver <- setRefClass(
                 }
                 # create the table
                 sql <- paste0("CREATE TABLE ", tableFull, " (", paste(columns, collapse = ", "), ");")
+                cat(sql)
                 update(sql)
             } else {
                 df <- dfRaw
@@ -237,7 +240,7 @@ RedshiftDriver <- setRefClass(
 
                     rows <- sapply(rows, function(col) {
                         if (is.numeric(col)) {
-                            col <- format(col, scientific = FALSE)
+                            col <- ifelse(is.na(col) | is.null(col), NA, format(col, scientific = FALSE))
                         } else {
                             col <- as.character(col)
                         }

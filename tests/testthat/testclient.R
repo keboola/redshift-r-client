@@ -187,7 +187,7 @@ test_that("saveDataFrameFile", {
 })
 
 
-test_that("saveDataFrameScientific", {
+test_that("saveDataFrameScientificNA", {
     driver <- RedshiftDriver$new()
     driver$connect(RS_HOST, RS_DB, RS_USER, RS_PASSWORD, RS_SCHEMA)
     driver$update("DROP TABLE IF EXISTS fooBar CASCADE;")
@@ -202,6 +202,18 @@ test_that("saveDataFrameScientific", {
     df[['fact']] <- factor(df[['fact']])
     driver$saveDataFrame(df, "fooBar", rowNumbers = FALSE, incremental = FALSE, forcedColumnTypes = list(id = "integer", text = "character"))
     dfResult <- driver$select("SELECT id, text FROM fooBar;")
+    expect_equal(nrow(df), nrow(dfResult))
+    
+    driver <- RedshiftDriver$new()
+    driver$connect(RS_HOST, RS_DB, RS_USER, RS_PASSWORD, RS_SCHEMA)
+    driver$update("DROP TABLE IF EXISTS fooBar CASCADE;")
+    df <- data.frame(
+        id = c(1, 2, 6e+05, NA),
+        fact = c(12, NA, NA, 3),
+        stringsAsFactors = FALSE
+    )
+    driver$saveDataFrame(df, "fooBar", rowNumbers = FALSE, incremental = FALSE, forcedColumnTypes = list(id = "integer", fact = "character"))
+    dfResult <- driver$select("SELECT id, fact FROM fooBar;")
     expect_equal(nrow(df), nrow(dfResult))
 })
 
