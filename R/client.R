@@ -96,17 +96,12 @@ RedshiftDriver <- setRefClass(
             }}
             \\subsection{Return Value}{A data.frame with results}"
             out <- data.frame()
-            print(paste("sending query",maxmem,"maxmem", chunksize, "chunksize"))
             results <- RJDBC::dbSendQuery(conn, statement)
-            print("query sent")
-            print(paste("resultInfo", dbGetInfo(results)))
             partialResults <- TRUE
             tryCatch(
             {
                 while (object.size(out) < maxmem && partialResults) {
-                    print("trying to fetch")
                     partialResults <- fetch(results, chunksize)
-                    print(paste("fetched res with size", nrow(partialResults)))
                     if (partialResults) {
                         out <- rbind(out, partialResults)    
                     }
@@ -211,7 +206,6 @@ RedshiftDriver <- setRefClass(
             } else {
                 df <- dfRaw
             }
-            
             # Maximum size of a statement is 16MB http://docs.aws.amazon.com/redshift/latest/dg/c_redshift-sql.html	
             rowLimit <- 5000
             # create query header
@@ -236,7 +230,6 @@ RedshiftDriver <- setRefClass(
                 while (TRUE) {
                     ptm <- proc.time()
                     rows <- df[from:min(nrow(df), to), ]
-
                     rows <- sapply(rows, function(col) {
                         if (is.numeric(col)) {
                             col <- ifelse(is.na(col) | is.null(col), NA, format(col, scientific = FALSE))
@@ -261,9 +254,9 @@ RedshiftDriver <- setRefClass(
                         row
                     })
                     
-                    tm <- (proc.time() - ptm)[['elapsed']]
                     sql <- paste0(sqlHeader, paste(sqlVals, collapse = ", "))
                     update(sql)
+                    tm <- (proc.time() - ptm)[['elapsed']]
                     if (!missing(displayProgress) && displayProgress) {
                         write(paste0("Saved row: ", to, " tm: ", tm, " r/s:", rowLimit / tm), stdout())
                     }

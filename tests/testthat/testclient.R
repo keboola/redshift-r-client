@@ -10,9 +10,7 @@ test_that("connect", {
         driver$connect("invalid", RS_DB, RS_USER, RS_PASSWORD, RS_SCHEMA),
         throws_error()
     )
-    
 })
-
 
 test_that("prepare", {
     driver <- RedshiftDriver$new()     
@@ -173,7 +171,6 @@ test_that("saveDataFrame", {
     )
 })
 
-
 test_that("saveDataFrameFile", {
     driver <- RedshiftDriver$new()     
     driver$connect(RS_HOST, RS_DB, RS_USER, RS_PASSWORD, RS_SCHEMA)
@@ -185,7 +182,6 @@ test_that("saveDataFrameFile", {
     dfResult$timestamp <- as.POSIXlt(df$timestamp, tz = 'UTC')
     expect_equal(nrow(df), nrow(df[which(dfResult$timestamp == df$timestamp),]))
 })
-
 
 test_that("saveDataFrameScientificNA", {
     driver <- RedshiftDriver$new()
@@ -216,7 +212,6 @@ test_that("saveDataFrameScientificNA", {
     dfResult <- driver$select("SELECT id, fact FROM fooBar;")
     expect_equal(nrow(df), nrow(dfResult))
 })
-
 
 test_that("saveDataFrameLarge", {
     driver <- RedshiftDriver$new()     
