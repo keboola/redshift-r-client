@@ -207,7 +207,6 @@ RedshiftDriver <- setRefClass(
                 }
                 # create the table
                 sql <- paste0("CREATE TABLE ", tableFull, " (", paste(columns, collapse = ", "), ");")
-                cat(sql)
                 update(sql)
             } else {
                 df <- dfRaw
