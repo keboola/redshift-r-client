@@ -136,14 +136,15 @@ RedshiftDriver <- setRefClass(
             TRUE
         },
 
-        saveDataFrame = function(dfRaw, table, rowNumbers = FALSE, incremental = FALSE, forcedColumnTypes) {
+        saveDataFrame = function(dfRaw, table, rowNumbers = FALSE, incremental = FALSE, forcedColumnTypes, displayProgress) {
             "Save a dataframe to database using bulk inserts. The table will be created to accomodate to data frame columns.
             \\subsection{Parameters}{\\itemize{
             \\item{\\code{dfRaw} A data.frame, column names of data frame must correspond to column names of table.}
             \\item{\\code{table} Name of the table.}
             \\item{\\code{rowNumbers} If true then the table will contain a column named 'row_num' with sequential row index}
             \\item{\\code{incremental} If true then the table will not be recreated, only data will be inserted.}
-            \\item{\\code{forcedColumnTypes} List of column names and their respective types in database.}
+            \\item{\\code{forcedColumnTypes} Optional list of column names and their respective types in database.}
+            \\item{\\code{displayProgress} Optional logical, if set to true, saving progress will be displayed.}
             }}
             \\subsection{Return Value}{TRUE}"
             # drop the table if already exists and loading is not incremental
@@ -210,9 +211,7 @@ RedshiftDriver <- setRefClass(
             }
             
             # Maximum size of a statement is 16MB http://docs.aws.amazon.com/redshift/latest/dg/c_redshift-sql.html	
-            # set the limit a little bit lower, because the counting is not precise
-            sqlLimit <- 500000
-            rowLimit <- 1000
+            rowLimit <- 5000
             # create query header
             colNames <- colnames(df)
             colNames <- lapply(
@@ -227,67 +226,58 @@ RedshiftDriver <- setRefClass(
                 sqlHeader <- paste0("INSERT INTO ", tableFull, " (", paste(colNames, collapse = ", "), ") VALUES ")			
             }
             
-            # list for row values
-            sqlVals <- list()
-            sqlLength <- 0
-            
             if (nrow(df) > 0) {
                 # data frame is non-empty
                 cntr <- 0
-                from <- 0
+                from <- 1
                 to <- rowLimit
-                ptm <- proc.time()
-                rows <- df[1:1000, ]
-                for (i in 1:nrow(df)) {
-                    # save row so as not to modify the original data frame
-                    row <- df[i,]
-                    # escape and quote all values
-                    row <- lapply(
-                        X = row, 
-                        function (value) {
-                            if (is.null(value) || is.na(value)) {
-                                value <- "NULL"
-                            } else if (is.numeric(value)) {
-                                value <- format(value, scientific = FALSE)                                
-                            } else {
-                                # escape the quotes (if any) in a value
-                                value <- gsub("'", "''", value)
-                                # quote the value
-                                value <- paste0("'", value, "'")
+                while (TRUE) {
+                    ptm <- proc.time()
+                    rows <- df[from:min(nrow(df), to), ]
+
+                    
+                    sqlVals <- apply(, MARGIN = 1, FUN = function(row) {
+                        # escape and quote all values
+                        print(row)
+                        row <- lapply(
+                            X = row, 
+                            function (value) {
+                                cat(value)
+                                cat(class(value))
+                                if (is.null(value) || is.na(value)) {
+                                    cat('h')
+                                    value <- "NULL"
+                                } else {
+                                    cat('k')
+                                    # escape the quotes (if any) in a value
+                                    value <- gsub("'", "''", value)
+                                    # quote the value
+                                    value <- paste0("'", value, "'")
+                                }
                             }
-                        }
-                    )
-                    # produce a single row of values
-                    if (rowNumbers) {
-                        sqlVal <- paste0("('", i, "', ", paste(row, collapse = ", "), ")")
-                    } else {
-                        sqlVal <- paste0("(", paste(row, collapse = ", "), ")")
+                        )
+                        # produce a single row of values
+                        if (rowNumbers) {
+                            row <- paste0("('", i, "', ", paste(row, collapse = ", "), ")")
+                        } else {
+                            row <- paste0("(", paste(row, collapse = ", "), ")")
+                        }                    
+                    })
+                    
+                    tm <- (proc.time() - ptm)[['elapsed']]
+                    sql <- paste0(sqlHeader, paste(sqlVals, collapse = ", "))
+                    update(sql)
+                    if (!missing(displayProgress) && displayProgress) {
+                        write(paste0("Saved row: ", to, " tm: ", tm, " r/s:", rowLimit / tm), stdout())
                     }
-                    # store the row in list
-                    sqlVals <- c(sqlVals, sqlVal)
-                    # keep track of length of the list
-                    sqlLength <- sqlLength + nchar(sqlVal)
-                    cntr <- cntr + 1;
-                    if ((sqlLength > sqlLimit) || (cntr > 1000)) {
-                        tm <- (proc.time() - ptm)[['elapsed']]
-                        write(paste0('Saving query: ', sqlLength, " row: ", i, " tm: ", tm, " r/s:", cntr / tm), stdout())
-                        # query length is over limit, execute it
-                        sql <- paste0(sqlHeader, paste(sqlVals, collapse = ", "))
-                        update(sql)
-                        write(paste0('Query executed ', sqlLength), stdout())
-                        # clear row values
-                        sqlLength <- 0
-                        sqlVals <- list()
-                        cntr <- 0
-                        ptm <- proc.time()
+                    # clear row values
+                    ptm <- proc.time()
+                    from <- to + 1
+                    to <- from + rowLimit
+                    if (from > nrow(df)) {
+                        break;
                     }
                 }
-            }
-            # if there are some rows left, insert them 
-            if (sqlLength > 0) {
-                write(paste0('Finalizing query: ', sqlLength), stdout())
-                sql <- paste0(sqlHeader, paste(sqlVals, collapse = ", "))
-                update(sql)
             }
             TRUE
         },
