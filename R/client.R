@@ -240,6 +240,19 @@ RedshiftDriver <- setRefClass(
                         col <- ifelse(is.na(col) | is.null(col), 'NULL', paste0("'", gsub("'", "''", col), "'"))
                         col
                     })
+                    # if the initial dataframe contains only a single row, it will get 
+                    # coerced into a vector by sapply, bring back the matrix now:
+                    if (class(rows) != 'matrix') {
+                        if (is.null(nrow(rows))) {
+                            rowNo <- 1
+                        } else {
+                            rowNo <- nrow(rows)
+                        }
+                        cn <- colnames(rows)
+                        rows <- matrix(rows, nrow = rowNo, byrow = FALSE)
+                        colnames(rows) <- cn
+                    }
+                    
                     if (rowNumbers) {
                         assign("rowCounter", 1, envir = .GlobalEnv)
                     }

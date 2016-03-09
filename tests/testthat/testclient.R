@@ -171,6 +171,21 @@ test_that("saveDataFrame", {
     )
 })
 
+test_that("saveSingleRow", {
+    driver <- RedshiftDriver$new()     
+    driver$connect(RS_HOST, RS_DB, RS_USER, RS_PASSWORD, RS_SCHEMA)
+    driver$update("DROP TABLE IF EXISTS fooBar CASCADE;")
+    df <- data.frame("foo" = c(1), "bar" = c("one"))
+    driver$saveDataFrame(df, "fooBar", rowNumbers = FALSE, incremental = FALSE)
+    dfResult <- driver$select("SELECT foo, bar FROM fooBar ORDER BY foo")
+    df[, "bar"] <- as.character(df[, "bar"])
+    
+    expect_equal(
+        dfResult,
+        df
+    )
+})
+
 test_that("saveDataFrameFile", {
     driver <- RedshiftDriver$new()     
     driver$connect(RS_HOST, RS_DB, RS_USER, RS_PASSWORD, RS_SCHEMA)
