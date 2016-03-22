@@ -109,7 +109,7 @@ test_that("columnTypes", {
     )
 })
 
-test_that("saveDataFrame", {
+test_that("saveDataFrame1", {
     driver <- RedshiftDriver$new()     
     driver$connect(RS_HOST, RS_DB, RS_USER, RS_PASSWORD, RS_SCHEMA)
     driver$update("DROP TABLE IF EXISTS fooBar CASCADE;")
@@ -147,7 +147,11 @@ test_that("saveDataFrame", {
         dfResult,
         df
     )
+})
     
+test_that("saveDataFrame2", {
+    driver <- RedshiftDriver$new()     
+    driver$connect(RS_HOST, RS_DB, RS_USER, RS_PASSWORD, RS_SCHEMA)    
     driver$update("DROP TABLE IF EXISTS fooBar CASCADE;")
     driver$update(paste0("CREATE TABLE ", RS_SCHEMA, ".fooBar (bar INTEGER);"))
     driver$update(paste0("CREATE VIEW ", RS_SCHEMA, ".basBar AS (SELECT * FROM ", RS_SCHEMA, ".fooBar);"))
@@ -169,6 +173,17 @@ test_that("saveDataFrame", {
         driver$saveDataFrame(df, "fooBar", rowNumbers = FALSE, incremental = TRUE),
         throws_error()
     )
+    
+    df <- data.frame(name = c('first', 'second'))
+    driver$update("DROP TABLE IF EXISTS fooBar CASCADE;")
+    driver$update(paste0("CREATE TABLE ", RS_SCHEMA, ".fooBar (name VARCHAR(200));"))        
+    driver$saveDataFrame(df, "fooBar", rowNumbers = FALSE, incremental = TRUE)
+    dfResult <- driver$select("SELECT name FROM fooBar")
+    dfResult[['name']] <- as.factor(dfResult[['name']])
+    expect_equal(
+        df,
+        dfResult
+    )  
 })
 
 test_that("saveSingleRow", {
