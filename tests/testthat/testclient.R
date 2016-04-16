@@ -253,3 +253,15 @@ test_that("saveDataFrameLarge", {
     dfResult <- driver$select("SELECT COUNT(*) AS cnt FROM fooBar;")
     expect_equal(dfResult[1, 'cnt'], nrow(df))
 })
+
+
+test_that("saveDataFrameEscape", {
+    driver <- RedshiftDriver$new()
+    driver$connect(RS_HOST, RS_DB, RS_USER, RS_PASSWORD, RS_SCHEMA)
+    driver$update("DROP TABLE IF EXISTS fooBar CASCADE;")
+    df <- data.frame(a = c('a', 'b'), b = c('foo \' bar', 'foo ; bar'))
+    driver$saveDataFrame(df, "fooBar", rowNumbers = FALSE, incremental = FALSE, displayProgress = TRUE)
+    dfff <- driver$select("SELECT a,b FROM fooBar ORDER BY b;")
+    dfResult <- driver$select("SELECT COUNT(*) AS cnt FROM fooBar;")
+    expect_equal(dfResult[1, 'cnt'], nrow(df))
+})
