@@ -178,10 +178,8 @@ test_that("saveDataFrame2", {
     driver$update("DROP TABLE IF EXISTS fooBar CASCADE;")
     driver$update(paste0("CREATE TABLE ", RS_SCHEMA, ".fooBar (name VARCHAR(200));"))        
     driver$saveDataFrame(df, "fooBar", rowNumbers = FALSE, incremental = TRUE)
-    dfResult <- driver$select("SELECT name FROM fooBar")
+    dfResult <- driver$select("SELECT name FROM fooBar ORDER BY name;")
     dfResult[['name']] <- as.factor(dfResult[['name']])
-    print(df)
-    print(dfResult)
     expect_equal(
         df,
         dfResult
