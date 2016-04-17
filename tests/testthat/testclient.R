@@ -180,6 +180,8 @@ test_that("saveDataFrame2", {
     driver$saveDataFrame(df, "fooBar", rowNumbers = FALSE, incremental = TRUE)
     dfResult <- driver$select("SELECT name FROM fooBar")
     dfResult[['name']] <- as.factor(dfResult[['name']])
+    print(df)
+    print(dfResult)
     expect_equal(
         df,
         dfResult
