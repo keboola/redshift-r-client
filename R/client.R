@@ -30,7 +30,7 @@ RedshiftDriver <- setRefClass(
             #libPath <- system.file("lib", "RedshiftJDBC41-1.1.10.1010.jar", package = "keboola.redshift.r.client")
             #driver <- JDBC("com.amazon.redshift.jdbc41.Driver", libPath, identifier.quote = '"')
             #jdbcUrl <- paste0("jdbc:redshift://", host, ":", port,  "/", db)
-            libPath <- system.file("lib", "postgresql-9.4.1208.jar", package = "keboola.redshift.r.client")
+            libPath <- system.file("lib", "postgresql-9.4.1208.jre7.jar", package = "keboola.redshift.r.client")
             driver <- JDBC("org.postgresql.Driver", libPath, identifier.quote = '"')
             jdbcUrl <- paste0("jdbc:postgresql://", host, ":", port,  "/", db)
             
