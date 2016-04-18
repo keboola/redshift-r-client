@@ -265,3 +265,27 @@ test_that("saveDataFrameEscape", {
     dfResult <- driver$select("SELECT COUNT(*) AS cnt FROM fooBar;")
     expect_equal(dfResult[1, 'cnt'], nrow(df))
 })
+
+test_that("saveDataFrameNonScalar1", {
+    driver <- RedshiftDriver$new()
+    driver$connect(RS_HOST, RS_DB, RS_USER, RS_PASSWORD, RS_SCHEMA)
+    driver$update("DROP TABLE IF EXISTS fooBar CASCADE;")
+    df <- data.frame(a = c('a', 'b'), stringsAsFactors = FALSE)
+    df$b <- list('e', 'f')
+    expect_error(
+        driver$saveDataFrame(df, "fooBar", rowNumbers = FALSE, incremental = FALSE, displayProgress = TRUE),
+        "non-scalar column"
+    )
+})
+
+test_that("saveDataFrameNonScalar2", {
+    driver <- RedshiftDriver$new()
+    driver$connect(RS_HOST, RS_DB, RS_USER, RS_PASSWORD, RS_SCHEMA)
+    driver$update("DROP TABLE IF EXISTS fooBar CASCADE;")
+    df <- data.frame(a = c('a', 'b'), stringsAsFactors = FALSE)
+    df$b <- list(c('a1', 'a2', 'a3'), c('b1', 'b2'))
+    expect_error(
+        driver$saveDataFrame(df, "fooBar", rowNumbers = FALSE, incremental = FALSE, displayProgress = TRUE),
+        "non-scalar column"
+    )
+})
