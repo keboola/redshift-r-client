@@ -148,7 +148,7 @@ RedshiftDriver <- setRefClass(
                 # check for non-scalar columns
                 classes <- lapply(dfRaw, class)
                 if ('list' %in% classes) {
-                    stop(paste0("Data frame contains non-scalar columns: ", paste(names(classes)[which(classes == 'list')], collapse = ", ")))
+                    stop(paste0("Data frame for ", table, " contains non-scalar columns: ", paste(names(classes)[which(classes == 'list')], collapse = ", ")))
                 }
                 # convert factors to strings
                 df <- data.frame(lapply(colnames(dfRaw), function(colname)
