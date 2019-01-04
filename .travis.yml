@@ -1,12 +1,8 @@
 language: r
-
 sudo: required
-
 apt_packages:
- - r-cran-rjava
-
-# Be strict when checking our package
+- r-cran-rjava
 warnings_are_errors: true
-
 notifications:
-  slack: keboola:8EW7Y0Kqvxxames1Rfp6feaE
+  slack:
+    secure: CaT/PfIaVOhnEpkzyj1a88RI1I8/qQwJ44okzBCOQwETzD2kBZZkA+VlB4VGI3sLuMy6eOiaY+9q29VNEaUT4ko7Z+GH8ToOsbLdZQ+y+EsSJ3kbYxhyLiN2blHV5uxf1vOYcfnxpmP3vD5dgffpiHQRejQaL7gme3DXyKF7qdc=
