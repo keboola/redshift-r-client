@@ -44,3 +44,7 @@ driver$tableExists("fooBar") # -> TRUE
 # for DML and DML statements use the update method
 driver$update("DROP TABLE IF EXISTS fooBar;")  
 ```
+
+## License
+
+MIT licensed, see [LICENSE](./LICENSE) file.
